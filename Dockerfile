@@ -16,6 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./src ./src
 
+ENV PYTHONPATH="${PYTHONPATH}:/code/src"
+
 # Expose the default code-server port
 EXPOSE 8080
 
