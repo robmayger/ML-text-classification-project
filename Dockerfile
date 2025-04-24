@@ -1,25 +1,26 @@
-# Dockerfile
 FROM python:3.13-slim
 
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y curl gnupg2 ca-certificates lsb-release
+# Install system packages
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    vim \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install code-server (VS Code in a browser)
-RUN curl -fsSL https://code-server.dev/install.sh | sh
+# Set working directory
+WORKDIR /workspace
 
-WORKDIR /code
+# Copy your app code
+COPY . /workspace
 
-COPY ./requirements.txt ./
+# Install Python dependencies (optional)
+RUN pip install -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY ./src ./src
-
-ENV PYTHONPATH="${PYTHONPATH}:/code/src"
-
-# Expose the default code-server port
-EXPOSE 8080
-
-# Start code-server
-CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "/code"]
+# Default command
+CMD ["bash"]

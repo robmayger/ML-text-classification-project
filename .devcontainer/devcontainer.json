@@ -1,0 +1,13 @@
+{
+    "name": "Python Dev Container",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
+    "extensions": [
+      "ms-python.python",
+      "ms-vscode.git"
+    ],
+    "settings": {
+      "terminal.integrated.shell.linux": "/bin/bash"
+    }
+}

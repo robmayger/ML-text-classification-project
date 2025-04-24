@@ -1,5 +1,5 @@
 from sklearn.datasets import fetch_20newsgroups
-from text_cleaning import BasicTextCleaner
+from cleaning.cleaning import BasicTextCleaner
 
 
 if __name__ == "__main__":
