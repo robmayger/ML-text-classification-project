@@ -22,5 +22,8 @@ COPY . /workspace
 # Install Python dependencies (optional)
 RUN pip install -r requirements.txt
 
+# Set PYTHONPATH to include the root of your code
+ENV PYTHONPATH="/workspace"
+
 # Default command
 CMD ["bash"]
