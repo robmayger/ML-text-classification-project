@@ -7,7 +7,7 @@ from itertools import chain
 
 
 if __name__ == "__main__":
-    data = fetch_20newsgroups(subset='train')
+    data = fetch_20newsgroups(subset='train')9
 
     X = data.data
     y = data.target
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     tokeniser = BasicTokeniser()
     X_tokens = [tokeniser.tokenise(text) for text in X_clean]
 
-    max_doc_len = max(X_tokens, key=len)
+    max_doc_len = max(map(lambda x: len(x), X_tokens))
 
     flat = list(chain.from_iterable(X_tokens))
     encoder = BasicEncoder(flat)
