@@ -7,7 +7,11 @@ class EncoderInterface(ABC):
 
     @abstractmethod
     def encode(self, tokens: list[str], padding: bool = True, max_len: int = 100) -> np.ndarray:
-        ...
+        pass
+
+    @abstractmethod
+    def get_vocab_size(self) -> int:
+        pass
 
 
 class BasicEncoder(EncoderInterface):
@@ -25,6 +29,9 @@ class BasicEncoder(EncoderInterface):
             encoding = self._pad_sequence(encoding, max_len, self._vocab['<PAD>'])
 
         return encoding
+    
+    def get_vocab_size(self) -> int:
+        return len(self._vocab)
     
     @staticmethod
     def _build_vocab(tokens: list[str], min_freq: int = 2) -> dict[str, int]:
