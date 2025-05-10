@@ -7,7 +7,11 @@ class EncoderInterface(ABC):
 
     @abstractmethod
     def encode(self, tokens: list[str], padding: bool = True, max_len: int = 100) -> np.ndarray:
-        ...
+        pass
+
+    @abstractmethod
+    def get_vocab_size(self) -> int:
+        pass
 
 
 class BasicEncoder(EncoderInterface):
@@ -26,11 +30,14 @@ class BasicEncoder(EncoderInterface):
 
         return encoding
     
+    def get_vocab_size(self) -> int:
+        return len(self._vocab)
+    
     @staticmethod
     def _build_vocab(tokens: list[str], min_freq: int = 2) -> dict[str, int]:
         counter = Counter(tokens)
-        
-        vocab = {word: idx + 2 for idx, (word, count) in enumerate(counter.items()) if count >= min_freq}
+        filtered_counter = Counter({k: v for k, v in counter.items() if v >= min_freq})
+        vocab = {word: idx + 2 for idx, (word, count) in enumerate(filtered_counter.items())}
         vocab['<PAD>'] = 0
         vocab['<UNK>'] = 1
         return vocab
