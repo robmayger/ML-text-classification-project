@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.BaseModel import BaseModel
+from src.models.BaseModel import BaseModel
 
 
 class SimpleTextClassifier(BaseModel, nn.Module):
