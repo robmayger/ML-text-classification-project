@@ -7,6 +7,14 @@ from src.models.BaseModel import BaseModel
 
 
 class BertEmbedding(nn.Module):
+    """
+    Embedding layer that combines token and positional embeddings for BERT.
+
+    Args:
+        vocab_size (int): Size of the vocabulary.
+        embed_size (int): Dimensionality of the embeddings.
+        max_len (int): Maximum length of the input sequences.
+    """
     def __init__(self, vocab_size, embed_size, max_len=512):
         super().__init__()
         self.token_embed = nn.Embedding(vocab_size, embed_size)
@@ -14,6 +22,15 @@ class BertEmbedding(nn.Module):
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
+        """
+        Forward pass for the embedding layer.
+
+        Args:
+            x (Tensor): Input token indices of shape [batch_size, seq_len].
+
+        Returns:
+            Tensor: Embedded input of shape [batch_size, seq_len, embed_size].
+        """
         seq_len = x.size(1)
         pos = torch.arange(0, seq_len, device=x.device).unsqueeze(0)  # shape: [1, seq_len]
         token_embeddings = self.token_embed(x)
@@ -22,6 +39,13 @@ class BertEmbedding(nn.Module):
 
 
 class MultiHeadSelfAttention(nn.Module):
+    """
+    Multi-head self-attention mechanism.
+
+    Args:
+        embed_size (int): Total embedding size.
+        heads (int): Number of attention heads.
+    """
     def __init__(self, embed_size, heads):
         super().__init__()
         self.heads = heads
@@ -33,6 +57,16 @@ class MultiHeadSelfAttention(nn.Module):
         self.fc_out = nn.Linear(embed_size, embed_size)
 
     def forward(self, x, mask=None):
+        """
+        Forward pass for the multi-head self-attention layer.
+
+        Args:
+            x (Tensor): Input tensor of shape [batch_size, seq_len, embed_size].
+            mask (Tensor, optional): Attention mask of shape [batch_size, 1, 1, seq_len].
+
+        Returns:
+            Tensor: Output tensor of shape [batch_size, seq_len, embed_size].
+        """
         B, T, C = x.size()
         qkv = self.qkv(x)  # [B, T, 3C]
         qkv = qkv.reshape(B, T, 3, self.heads, self.head_dim).permute(2, 0, 3, 1, 4)
@@ -49,6 +83,15 @@ class MultiHeadSelfAttention(nn.Module):
 
 
 class TransformerBlock(nn.Module):
+    """
+    Transformer block containing multi-head self-attention and a feed-forward network.
+
+    Args:
+        embed_size (int): Embedding size.
+        heads (int): Number of attention heads.
+        ff_hidden_size (int): Hidden layer size in the feed-forward network.
+        dropout (float): Dropout rate.
+    """
     def __init__(self, embed_size, heads, ff_hidden_size, dropout=0.1):
         super().__init__()
         self.attn = MultiHeadSelfAttention(embed_size, heads)
@@ -63,6 +106,16 @@ class TransformerBlock(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, mask=None):
+        """
+        Forward pass through the Transformer block.
+
+        Args:
+            x (Tensor): Input tensor of shape [batch_size, seq_len, embed_size].
+            mask (Tensor, optional): Attention mask.
+
+        Returns:
+            Tensor: Output tensor of the same shape as input.
+        """
         attn = self.attn(x, mask)
         x = self.norm1(x + self.dropout(attn))
         ff = self.ff(x)
@@ -71,6 +124,18 @@ class TransformerBlock(nn.Module):
 
 
 class BERTEncoder(nn.Module):
+    """
+    BERT-style encoder composed of embedding and Transformer blocks.
+
+    Args:
+        vocab_size (int): Vocabulary size.
+        embed_size (int): Embedding size.
+        heads (int): Number of attention heads.
+        depth (int): Number of Transformer blocks.
+        ff_hidden (int): Hidden size of the feed-forward layers.
+        max_len (int): Maximum sequence length.
+        num_classes (int): Number of output classes for classification.
+    """
     def __init__(self, vocab_size, embed_size=256, heads=8, depth=6, ff_hidden=512, max_len=512, num_classes=20):
         super().__init__()
         self.embedding = BertEmbedding(vocab_size, embed_size, max_len)
@@ -81,6 +146,16 @@ class BERTEncoder(nn.Module):
         self.classifier = nn.Linear(embed_size, num_classes)
 
     def forward(self, x, mask=None):
+        """
+        Forward pass for the BERT encoder.
+
+        Args:
+            x (Tensor): Input token indices of shape [batch_size, seq_len].
+            mask (Tensor, optional): Attention mask.
+
+        Returns:
+            Tensor: Logits of shape [batch_size, num_classes].
+        """
         B = x.size(0)
         cls_tokens = self.cls_token.expand(B, -1, -1)  # [B, 1, embed]
         x = self.embedding(x)
@@ -92,6 +167,19 @@ class BERTEncoder(nn.Module):
 
 
 class BERTTextClassifier(BaseModel):
+    """
+    BERT-based text classification model with training and validation steps.
+
+    Args:
+        vocab_size (int): Vocabulary size.
+        num_classes (int): Number of classes for classification.
+        embed_size (int): Size of token embeddings.
+        heads (int): Number of attention heads.
+        depth (int): Number of Transformer blocks.
+        ff_hidden (int): Hidden size in feed-forward layers.
+        max_len (int): Maximum sequence length.
+        lr (float): Learning rate for the optimizer.
+    """
     def __init__(self, vocab_size, num_classes=20, embed_size=256, heads=2, depth=6, ff_hidden=128, max_len=200, lr=3e-4):
         super(BERTTextClassifier, self).__init__()
         self.model = BERTEncoder(
@@ -106,14 +194,41 @@ class BERTTextClassifier(BaseModel):
         self.lr = lr
 
     def forward(self, x):
+        """
+        Forward pass for the text classifier.
+
+        Args:
+            x (Tensor): Input tensor of token indices.
+
+        Returns:
+            Tensor: Classification logits.
+        """
         return self.model(x)
 
     def training_step(self, batch):
+        """
+        Compute training loss for a batch.
+
+        Args:
+            batch (tuple): A tuple (x, y) of inputs and labels.
+
+        Returns:
+            Tensor: Cross-entropy loss.
+        """
         x, y = batch
         logits = self.forward(x)
         return F.cross_entropy(logits, y)
 
     def validation_step(self, batch):
+        """
+        Compute validation loss and accuracy for a batch.
+
+        Args:
+            batch (tuple): A tuple (x, y) of inputs and labels.
+
+        Returns:
+            dict: Dictionary containing validation loss and accuracy.
+        """
         x, y = batch
         logits = self.forward(x)
         loss = F.cross_entropy(logits, y)
@@ -122,5 +237,11 @@ class BERTTextClassifier(BaseModel):
         return {'val_loss': loss.item(), 'val_acc': acc.item()}
 
     def configure_optimizers(self):
+        """
+        Configure the optimizer.
+
+        Returns:
+            torch.optim.Optimizer: The Adam optimizer instance.
+        """
         return torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
