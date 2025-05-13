@@ -1,0 +1,2 @@
+from .SimpleTextClassifier import SimpleTextClassifier
+from .BertClassifier import BERTClassifier

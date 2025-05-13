@@ -1,21 +1,17 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
-from src.models.BaseModel import BaseModel
+from .BaseClassifier import BaseClassifier
+from models.neural_nets.SimpleTextClassifier import SimpleTextClassifier
 
 
-class SimpleTextClassifier(BaseModel, nn.Module):
-    def __init__(self, vocab_size, embed_dim, num_classes):
+class SimpleTextClassifier(BaseClassifier):
+    def __init__(self, vocab_size: int, embed_dim: int, num_classes: int) -> None:
         super(SimpleTextClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
-        self.fc = nn.Linear(embed_dim, num_classes)
+        self.model = SimpleTextClassifier(vocab_size, embed_dim, num_classes)
 
     def forward(self, x):
-        embedded = self.embedding(x)
-        mean_embedded = embedded.mean(dim=1)
-        output = self.fc(mean_embedded)
-        return output
+        return self.model.forward(x)
     
     def training_step(self, batch):
         inputs, targets = batch
@@ -31,4 +27,4 @@ class SimpleTextClassifier(BaseModel, nn.Module):
         return {"val_loss": loss.item(), "val_acc": acc.item()}
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=1e-3)
+        return torch.optim.Adam(self.model.parameters(), lr=1e-3)
