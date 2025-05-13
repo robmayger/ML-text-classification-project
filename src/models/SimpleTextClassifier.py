@@ -2,13 +2,13 @@ import torch
 import torch.nn.functional as F
 
 from .BaseClassifier import BaseClassifier
-from models.neural_nets.SimpleTextClassifier import SimpleTextClassifier
+from .neural_nets.MeanEmbeddingClassifier import MeanEmbeddingClassifier
 
 
 class SimpleTextClassifier(BaseClassifier):
     def __init__(self, vocab_size: int, embed_dim: int, num_classes: int) -> None:
         super(SimpleTextClassifier, self).__init__()
-        self.model = SimpleTextClassifier(vocab_size, embed_dim, num_classes)
+        self.model = MeanEmbeddingClassifier(vocab_size, embed_dim, num_classes)
 
     def forward(self, x):
         return self.model.forward(x)

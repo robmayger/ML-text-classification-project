@@ -4,9 +4,9 @@ import torch.nn as nn
 from .BaseModel import PytorchBaseModel
 
 
-class SimpleTextClassifier(PytorchBaseModel):
+class MeanEmbeddingClassifier(PytorchBaseModel):
     def __init__(self, vocab_size, embed_dim, num_classes):
-        super(SimpleTextClassifier, self).__init__()
+        super(MeanEmbeddingClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
         self.fc = nn.Linear(embed_dim, num_classes)
 

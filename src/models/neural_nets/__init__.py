@@ -1,2 +1,2 @@
-from .SimpleTextClassifier import SimpleTextClassifier
+from .MeanEmbeddingClassifier import MeanEmbeddingClassifier
 from .BertClassifier import BERTClassifier

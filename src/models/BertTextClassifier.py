@@ -1,10 +1,8 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 from .neural_nets import BERTClassifier
-from models.BaseClassifier import BaseClassifier
+from .BaseClassifier import BaseClassifier
 
 
 class BERTTextClassifier(BaseClassifier):
