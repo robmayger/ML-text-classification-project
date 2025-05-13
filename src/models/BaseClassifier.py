@@ -3,7 +3,7 @@ import torch
 from abc import ABC, abstractmethod
 
 
-class BaseModel(ABC):
+class BaseClassifier(ABC):
     @abstractmethod
     def forward(self, x):
         pass
