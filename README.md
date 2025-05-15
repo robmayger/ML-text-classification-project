@@ -23,9 +23,6 @@ This project implements a machine learning pipeline for text classification task
 ├── README.md                # Project documentation
 ```
 
-
-```
-
 ## Getting Started
 
 ### Prerequisites
